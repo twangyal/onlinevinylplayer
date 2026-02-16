@@ -12,5 +12,5 @@ export async function getCurrentUser() {
         return null;
     }
 
-    return user; // null if not logged in
+    return user;
 }
