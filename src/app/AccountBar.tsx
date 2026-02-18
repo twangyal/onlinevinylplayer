@@ -13,7 +13,9 @@ export async function AccountBar() {
         padding: '1rem', 
         borderBottom: '1px solid #eaeaea' 
         }}>
-        <div><strong>VinylApp</strong></div>
+        <div><Link href="/play/local"><strong>App</strong></Link></div>
+        <div><Link href="/add-vinyl">Add Vinyl</Link></div>
+        <div><Link href="/collection">My Collection</Link></div>
         
         <nav>
             {user ? (

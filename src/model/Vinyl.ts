@@ -2,7 +2,8 @@ import type { Track } from "./Track.ts"
 import type { Metadata } from "./Metadata.ts"
 
 export type Vinyl = {
-    id : String
+    id? : string
+    name : string
     tracks : [Track[], Metadata[]]
     numberOfTracks : number
     currentTrackIndex : number

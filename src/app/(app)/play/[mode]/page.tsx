@@ -1,0 +1,25 @@
+import { createSupabaseServerClient } from "@/src/db/serverClient";
+import { vinylRepositorySupabase } from "@/src/db/vinylRepoSupabase";
+import { PlayView } from "@/src/client/ui/PlayView";
+import { redirect } from "next/navigation";
+
+export default async function PlayPage({ params }: { params: { mode: string } }) {
+    const { mode } = await params; 
+    const local = mode === "local" ? true : false;
+    const supabase = await createSupabaseServerClient();
+
+    if (mode !== "local") {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+            redirect("/login");
+        }
+    }
+    return (
+        <main className="p-6">
+            <PlayView 
+                isLoggedIn={!local} 
+                initialData={[]}
+            />
+        </main>
+    );
+}

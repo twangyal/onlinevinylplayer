@@ -1,4 +1,4 @@
-import type { Track } from "../model/Track";
+import type { Track } from "@/src/model/Track";
 
 export class TrackNode {
     context : AudioContext;

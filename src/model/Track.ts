@@ -1,4 +1,4 @@
 export type Track = {
-    buffer: AudioBuffer,
+    audio: string|File,
     gain: number
 }

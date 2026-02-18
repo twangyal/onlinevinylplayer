@@ -1,4 +1,4 @@
-import type { Vinyl } from "../model/Vinyl";
+import type { Vinyl } from "@/src/model/Vinyl";
 import { TrackNode } from "./TrackNode"
 
 class AudioEngine {

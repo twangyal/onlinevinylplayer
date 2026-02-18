@@ -1,4 +1,4 @@
-import { currentTrack, type Vinyl, nextTrack, prevTrack } from "../model/Vinyl";
+import { currentTrack, type Vinyl, nextTrack, prevTrack } from "@/src/model/Vinyl";
 import { AudioEngine } from "./AudioEngine";
 import { TrackNode } from "./TrackNode";
 
