@@ -12,6 +12,8 @@ export async function AccountBar() {
         justifyContent: 'space-between', 
         padding: '1rem', 
         borderBottom: '1px solid #eaeaea' 
+        ,
+            marginBottom: '-1rem'
         }}>
         <div><Link href="/play/local"><strong>App</strong></Link></div>
         <div><Link href="/add-vinyl">Add Vinyl</Link></div>

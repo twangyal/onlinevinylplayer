@@ -25,15 +25,20 @@ export class TrackNode {
     }
 
     play(time: number){
+        if(this.source) return; // already playing
+        if(!this.track.audioBuffer) {
+            console.error("AudioBuffer not loaded for track:", this.track);
+            return;
+        }
         this.source = this.context.createBufferSource();
-        this.source.buffer = this.track.buffer;
+        this.source.buffer = this.track.audioBuffer;
         this.source.connect(this.gainNode);
         this.startFrom = this.context.currentTime
         this.source.start(time, this.offset);
         this.source.onended = () => {
             this.source?.stop();
             this.source = null;
-            if(this.offset>=this.track.buffer.duration){
+            if(this.track.audioBuffer && this.offset>=this.track.audioBuffer.duration){
                 this.offset = 0;
             }
             if (this.onEnded) this.onEnded();

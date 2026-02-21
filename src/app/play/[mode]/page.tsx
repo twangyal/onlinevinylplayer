@@ -8,7 +8,8 @@ export default async function PlayPage({ params }: { params: { mode: string } })
     const local = mode === "local" ? true : false;
     const supabase = await createSupabaseServerClient();
 
-    if (mode !== "local") {
+    console.log("PlayPage rendered with mode:", mode, "local:", local); // Debug log
+    if (!local) {
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             redirect("/login");

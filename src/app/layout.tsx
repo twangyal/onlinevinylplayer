@@ -8,11 +8,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        {/* AccountBar stays at the top of every page */}
-        <AccountBar />
-        
-        <main style={{ padding: '2rem' }}>
+      <body className="h-screen flex flex-col overflow-hidden">
+        <main className="flex-1 overflow-hidden">
           {children}
         </main>
       </body>
