@@ -1,5 +1,5 @@
 export type Metadata = {
     fade?: number
-    length?: number
+    duration?: number
     name: string
 }

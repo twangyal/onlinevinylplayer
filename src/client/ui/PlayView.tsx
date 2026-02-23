@@ -4,19 +4,21 @@ import { useRef, useState, useEffect } from "react";
 import { Vinyl } from "@/src/model/Vinyl";
 import { useSortable } from "@dnd-kit/react/sortable";
 import {DragDropProvider} from '@dnd-kit/react';
-import {move} from '@dnd-kit/helpers';
+import { move, arrayMove } from '@dnd-kit/helpers';
 import { SpinningVinyl } from "./Vinyl";
 import { useAudioEngine } from "../hooks/useAudioEngine";
 import { createVinyl } from "../factories/createVinyl";
 import { useVinylPlayer } from "../hooks/useVinylPlayer";
+import { QueueItem } from "@/src/model/Queue";
 
 
-function Sortable({id, index, handleLocalUpload, data, isFile}: {
+function Sortable({id, index, handleLocalUpload, data, isFile, dataId}: {
     id: string; 
     index: number; 
     handleLocalUpload?: (e: React.ChangeEvent<HTMLInputElement>) => void; 
     data: Record<string, {id: string, file: File}>|Record<string, Vinyl>;
     isFile: boolean;
+    dataId?: string;
     }) {
     const [element, setElement] = useState<Element | null>(null);
     const handleRef = useRef<HTMLButtonElement | null>(null);
@@ -39,8 +41,8 @@ function Sortable({id, index, handleLocalUpload, data, isFile}: {
             </button>
             <button ref={handleRef} className="handle" />
         </li>):
-        (<li ref={setElement} className="item" data-shadow={isDragging || undefined}>
-            {(data[id] as Vinyl)?.name || 'Unknown Vinyl ' + (index + 1)}
+        (<li ref={setElement} className="item-vinyl" data-shadow={isDragging || undefined}>
+            <SpinningVinyl title={dataId && (data[dataId] as Vinyl)?.name || 'Unknown Vinyl'} tracks={(data[id] as Vinyl)?.tracks[1]} active={false} playing={false} />
             <button ref={handleRef} className="handle" />
         </li>)
         }
@@ -51,9 +53,10 @@ function Sortable({id, index, handleLocalUpload, data, isFile}: {
 export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLoggedIn: boolean }) {
     const audioEngine = useAudioEngine();
     const { isPlaying, currentId, queue, vinylLibrary,
-        togglePlay, addToQueue, loadVinylLibrary, addVinylToLibrary } = useVinylPlayer(audioEngine);
+        togglePlay, addToQueue, moveInQueue, removeFromQueue, 
+        loadVinylLibrary, addVinylToLibrary, playFromPoint } = useVinylPlayer(audioEngine);
     
-    const [fileOrder, setFileOrder] = useState<string[]>([]);
+    const [fileOrder, setFileOrder] = useState<QueueItem[]>([]);
     const [audioFiles, setAudioFiles] = useState<Record<string, {id: string, file: File}>>({});
     const [numberOfTracks, setNumberOfTracks] = useState(0);
     const hasFileByIndexRef = useRef<boolean[]>([]);
@@ -65,6 +68,7 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
 
     const handleLocalUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const index = Number(e.currentTarget.dataset.index ?? -1);
+        console.log("File input changed at index:", index);
         const file = Array.from(e.target.files || []);
 
         // Check if the file presence has changed for this index and update the track count accordingly
@@ -79,7 +83,7 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
         }
         // Update existing track
         if (index < numberOfTracks) {
-            const existingId = fileOrder[index];
+            const existingId = fileOrder[index].dataId;
             if (!existingId) return;
             setAudioFiles((prev) => ({
                 ...prev,
@@ -93,7 +97,7 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
         else{
             if (file.length === 0) return;
             const id = crypto.randomUUID();
-            setFileOrder((prev) => [...prev, id]);
+            setFileOrder((prev) => [...prev, {entryId: id, dataId: id}]);
             setAudioFiles((prev) => ({
                 ...prev,
                 [id]: {
@@ -101,6 +105,9 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                     file: file[0] || null,
                 },
             }));
+        }
+        if (index === numberOfTracks) {
+            e.currentTarget.value = ""; // Clear the file input for the next upload
         }
     };
 
@@ -133,10 +140,14 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
         setFileOrder([]);
     };
 
+    const handleVinylClick = (percentage: number) => {
+        playFromPoint(percentage);
+    };
+
     return (
         <div className="flex-1 grid grid-cols-2 gap-6 p-6 bg-gray-200">
             <div className="bg-gray-400 aspect-square max-h-full">
-                <SpinningVinyl/>
+                <SpinningVinyl title={vinylLibrary[currentId]?.name || "Unknown Vinyl"} tracks={vinylLibrary[currentId]?.tracks[1]} handleClick={handleVinylClick} active={true} playing={isPlaying} />
                 <button onClick={() => {
                     togglePlay();
                 }}>{isPlaying ? "Pause" : "Play"}</button>
@@ -157,7 +168,10 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                 <div className="bg-gray-500 max-h-full" >
                 <DragDropProvider
                     onDragEnd={(event) => {
-                        setFileOrder((prev) => move(prev, event));
+                        console.log("Event:", event);
+                        const newFileOrderObjects = move(fileOrder.map(item => item.entryId), event).map(id => fileOrder.find(item => item.entryId === id)!);
+                        setFileOrder(newFileOrderObjects);
+                        console.log("New file order:", newFileOrderObjects);
                     }}
                     >
                     <input
@@ -171,8 +185,8 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                     <ul className="list max-h-96 overflow-y-auto pr-2">
                         {fileOrder.map((id, index) => (
                         <Sortable
-                            key={id}
-                            id={id}
+                            key={id.entryId}
+                            id={id.entryId}
                             index={index}
                             handleLocalUpload={handleLocalUpload}
                             data={audioFiles}
@@ -203,15 +217,18 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                 <button className="w-full bg-blue-500 text-white p-2 rounded" onClick={() =>  handleSubmit()}>Submit</button>
                 </div>     
             </div>
-            <div className="bg-gray-500 h-80">
-                <DragDropProvider>
-                    <ul>
+            <div className="bg-gray-500 h-80 min-w-0">
+                <DragDropProvider onDragEnd={(event) => {
+                        moveInQueue(event);
+                    }}>
+                    <ul className="list-vinyl h-full overflow-y-auto pr-2">
                         {queue.map((id, index) => (
                         <Sortable
-                            key={id}
-                            id={id}
+                            key={id.entryId}
+                            id={id.entryId}
+                            dataId={id.dataId}
                             index={index}
-                            data={vinylLibrary}
+                            data={vinyls}
                             isFile={false}
                         />
                         ))}

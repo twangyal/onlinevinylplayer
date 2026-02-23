@@ -2,7 +2,7 @@ export async function getAudioBuffer(url: string, audioContext: AudioContext, si
     const response = await fetch(url, { signal });
     
     if (!response.ok) throw new Error(`Failed to fetch audio: ${response.statusText}`);
-
+    console.log(`Fetched audio from ${url}, status: ${response.status}`);
     const arrayBuffer = await response.arrayBuffer();
     
     if (signal?.aborted) {

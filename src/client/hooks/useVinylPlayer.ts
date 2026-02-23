@@ -1,36 +1,57 @@
 // src/hooks/useVinylPlayer.ts
 import { useState, useMemo } from "react";
-import { VinylPlayer } from "../audio/VinylPlayer";
+import { VinylPlayer,  } from "../audio/VinylPlayer";
 import { AudioEngine } from "../audio/AudioEngine";
 import { Vinyl } from "@/src/model/Vinyl";
-
+import { QueueItem } from "@/src/model/Queue";
 
 export function useVinylPlayer(engine: AudioEngine) {
     const player = useMemo(() => new VinylPlayer(engine), [engine]);
     
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentId, setCurrentId] = useState("");
-    const [queue, setQueue] = useState<string[]>([]);
+    const [queue, setQueue] = useState<QueueItem[]>([]);
     const [vinylLibrary, setVinylLibrary] = useState<Record<string, Vinyl>>({});
 
     const togglePlay = () => {
-        player.pauseAndPlayTrack();
-        setIsPlaying(!player.paused);
-        if(player.currentVinylId) setCurrentId(player.currentVinylId);};
+        if(player.pauseAndPlayTrack()) {
+            setCurrentId(player.currentVinylId);
+            setQueue([...player.vinylQueue]);
+            setVinylLibrary({...player.vinylLibrary});
+            setIsPlaying(!player.paused);
+        }
+    }
+
+    const moveInQueue = (event: any) => {
+        player.moveInQueue(event);
+        setQueue(player.vinylQueue);
+        setVinylLibrary({...player.vinylLibrary});
+    }
+
+    const removeFromQueue = (index: number) => {
+        player.removeFromQueue(index);
+        setQueue([...player.vinylQueue]);
+        setVinylLibrary({...player.vinylLibrary});
+    };
 
     const addToQueue = (id: string) => {
         player.addToQueue(id);
         setQueue([...player.vinylQueue]);
+        setVinylLibrary({...player.vinylLibrary});
     };
 
     const loadVinylLibrary = () => {
         player.loadVinylLibrary();
-        setVinylLibrary(player.vinylLibrary);
+        setVinylLibrary({...player.vinylLibrary});
     };
 
     const addVinylToLibrary = (vinyl: any) => {
         player.addVinylToLibrary(vinyl);
         setVinylLibrary({...player.vinylLibrary});
+    };
+
+    const playFromPoint = (percentage: number) => {
+        player.playFromPoint(percentage);
     };
 
     return {
@@ -40,7 +61,10 @@ export function useVinylPlayer(engine: AudioEngine) {
         vinylLibrary,
         togglePlay,
         addToQueue,
+        moveInQueue,
+        removeFromQueue,
         loadVinylLibrary,
-        addVinylToLibrary
+        addVinylToLibrary,
+        playFromPoint
     };
 }

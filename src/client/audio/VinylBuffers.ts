@@ -27,10 +27,18 @@ export class VinylBuffers {
 
     loadAllTracks = async ({ signal }: { signal?: AbortSignal }) => {
         try {
-            // Load all URLs in parallel
-            const loadedBuffers = await Promise.all(
-                this.tracks.map(track => getAudioBuffer(track.audioUrl, this.engine.context, signal))
-            );
+            // Load all URLs in batches of 3 to avoid spikes in cpu which was causing the UI to freeze slightly
+            const loadedBuffers: AudioBuffer[] = [];
+            for (let i = 0; i < this.tracks.length; i += 3) {
+                if (signal?.aborted) {
+                    throw new DOMException("Aborted", "AbortError");
+                }
+                const batch = this.tracks.slice(i, i + 3);
+                const batchBuffers = await Promise.all(
+                    batch.map(track => getAudioBuffer(track.audioUrl, this.engine.context, signal))
+                );
+                loadedBuffers.push(...batchBuffers);
+            }
             if (!signal?.aborted) {
                 this.buffers = loadedBuffers;
             }
@@ -42,8 +50,7 @@ export class VinylBuffers {
             }
         } finally {
             if (!signal?.aborted) {
-                // Optionally clear track URLs after loading to free memory
-                this.tracks.forEach(track => track.audioUrl = "");
+                console.log("Finished loading all tracks.");
             }
         }
     };
