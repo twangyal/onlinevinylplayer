@@ -10,7 +10,6 @@ export default function RootLayout({
     <html lang="en">
       <body className="h-screen flex flex-col overflow-hidden">
         <main className="flex-1 overflow-hidden">
-          <AccountBar />
           {children}
         </main>
       </body>

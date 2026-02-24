@@ -16,7 +16,7 @@ export default async function PlayPage({ params }: { params: { mode: string } })
         }
     }
     return (
-        <main className="p-6">
+        <main>
             <PlayView 
                 isLoggedIn={!local} 
                 initialData={[]}

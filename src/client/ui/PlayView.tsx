@@ -1,5 +1,6 @@
 "use client";
 
+import "./PlayView.css";
 import { useRef, useState, useEffect } from "react";
 import { Vinyl } from "@/src/model/Vinyl";
 import { useSortable } from "@dnd-kit/react/sortable";
@@ -10,6 +11,8 @@ import { useAudioEngine } from "../hooks/useAudioEngine";
 import { createVinyl } from "../factories/createVinyl";
 import { useVinylPlayer } from "../hooks/useVinylPlayer";
 import { QueueItem } from "@/src/model/Queue";
+import { VinylPlayer } from "./VinylPlayer";
+import { Sidebar } from "./Sidebar";
 
 
 function Sortable({id, index, handleLocalUpload, data, isFile, dataId}: {
@@ -42,8 +45,15 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId}: {
             <button ref={handleRef} className="handle" />
         </li>):
         (<li ref={setElement} className="item-vinyl" data-shadow={isDragging || undefined}>
-            <SpinningVinyl title={dataId && (data[dataId] as Vinyl)?.name || 'Unknown Vinyl'} tracks={(data[id] as Vinyl)?.tracks[1]} active={false} playing={false} />
-            <button ref={handleRef} className="handle" />
+            <div>
+                <SpinningVinyl
+                    title={dataId && (data[dataId] as Vinyl)?.name || 'Unknown Vinyl'}
+                    tracks={dataId && (data[dataId] as Vinyl)?.tracks[1]! || []}
+                    active={false}
+                    playing={false}
+                />
+                {dataId && <span className="text-sm mt-1 block text-center">{(data[dataId] as Vinyl)?.name || 'Unknown Vinyl'}</span>}
+            </div>
         </li>)
         }
         </>
@@ -63,8 +73,12 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
 
     const [vinylName, setVinylName] = useState("");
     const [vinyls, setVinyls] = useState<Record<string, Vinyl>>({});
+    const [activeSection, setActiveSection] = useState('home');
 
 
+    useEffect(() => {
+        loadVinylLibrary();
+    }, []);
 
     const handleLocalUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
         const index = Number(e.currentTarget.dataset.index ?? -1);
@@ -145,17 +159,41 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
     };
 
     return (
-        <div className="flex-1 grid grid-cols-2 gap-6 p-6 bg-gray-200">
-            <div className="bg-gray-400 aspect-square max-h-full">
-                <SpinningVinyl title={vinylLibrary[currentId]?.name || "Unknown Vinyl"} tracks={vinylLibrary[currentId]?.tracks[1]} handleClick={handleVinylClick} active={true} playing={isPlaying} />
-                <button onClick={() => {
+        <div className="h-screen flex bg-white">
+            <Sidebar activeSection={activeSection} onSectionChange={setActiveSection} />
+        <div className="flex-1 grid grid-cols-2 gap-6 p-6">
+            <div className="aspect-square max-h-full">
+                <VinylPlayer 
+                title={currentId ? vinylLibrary[currentId]?.name : "No Vinyl Playing"} 
+                tracks={currentId ? vinylLibrary[currentId]?.tracks[1] : []} 
+                handleClick={handleVinylClick} 
+                active={!!currentId} 
+                playing={isPlaying} 
+                setPlaying={() => {
                     togglePlay();
-                }}>{isPlaying ? "Pause" : "Play"}</button>
+                }} />
             </div>
-
             <div className="grid grid-rows-[auto_1fr] gap-6">
+            <div className="h-80 min-w-0">
+                <DragDropProvider onDragEnd={(event) => {
+                        moveInQueue(event);
+                    }}>
+                    <ul className="list-vinyl h-full overflow-y-auto pr-2">
+                        {queue.map((id, index) => (
+                        <Sortable
+                            key={id.entryId}
+                            id={id.entryId}
+                            dataId={id.dataId}
+                            index={index}
+                            data={vinyls}
+                            isFile={false}
+                        />
+                        ))}
+                    </ul>
+                </DragDropProvider>
+            </div>
             <div className="grid grid-cols-2 gap-6 h-140">
-                <div className="bg-gray-500 max-h-full">
+                <div className="max-h-full">
                     <ul className="list">
                         {Object.values(vinyls).map((vinyl, index) => (
                             <li key={vinyl.id} className="p-3 mb-2 bg-gray-600 rounded hover:bg-gray-700 cursor-pointer transition" onClick={() => addToQueue(vinyl.id)}>
@@ -165,7 +203,7 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                         ))}
                     </ul>
                 </div>
-                <div className="bg-gray-500 max-h-full" >
+                <div className="max-h-full" >
                 <DragDropProvider
                     onDragEnd={(event) => {
                         console.log("Event:", event);
@@ -217,25 +255,9 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                 <button className="w-full bg-blue-500 text-white p-2 rounded" onClick={() =>  handleSubmit()}>Submit</button>
                 </div>     
             </div>
-            <div className="bg-gray-500 h-80 min-w-0">
-                <DragDropProvider onDragEnd={(event) => {
-                        moveInQueue(event);
-                    }}>
-                    <ul className="list-vinyl h-full overflow-y-auto pr-2">
-                        {queue.map((id, index) => (
-                        <Sortable
-                            key={id.entryId}
-                            id={id.entryId}
-                            dataId={id.dataId}
-                            index={index}
-                            data={vinyls}
-                            isFile={false}
-                        />
-                        ))}
-                    </ul>
-                </DragDropProvider>
+            
             </div>
-            </div>
+        </div>
         </div>
     );
 }

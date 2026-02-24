@@ -19,12 +19,6 @@
   }
 }
 
-body {
-  padding: 1em;
-  font-family: system-ui, sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
 .list {
   display: flex;
   flex-direction: column;

@@ -9,7 +9,8 @@ const SIDE_A_TRACKS: Metadata[] = [
     { name: "Outro", duration: 300 },
 ];
 
-export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, active = false, playing }: { title?: string, tracks: Metadata[], handleClick?: (positionPercentage: number) => void, active?: boolean, playing?: boolean }) {
+export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, active = false, playing }: 
+    { title?: string, tracks: Metadata[], handleClick?: (positionPercentage: number) => void, active?: boolean, playing?: boolean }) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const rotationRef = useRef(0);
     const animationRef = useRef<number>(0);
@@ -27,7 +28,8 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
         return {
             centerX,
             centerY,
-            outerRadius: baseUnit * 0.9,     
+            outerRadius: baseUnit * 0.9,
+            innerRadius: baseUnit * 0.35,     
             labelRadius: baseUnit * 0.25,    
             holeRadius: baseUnit * 0.02,     
             grooveSpacing: baseUnit * 0.005
@@ -44,15 +46,15 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
         const y = event.clientY - rect.top;
 
         // Use rect dimensions (CSS pixels) for hit detection
-        const { centerX, centerY, outerRadius, labelRadius } = getVinylDimensions(rect.width, rect.height);
+        const { centerX, centerY, outerRadius, innerRadius } = getVinylDimensions(rect.width, rect.height);
 
         const dx = x - centerX;
         const dy = y - centerY;
         const distance = Math.sqrt(dx * dx + dy * dy);
 
-        if (distance > outerRadius || distance < labelRadius) return;
+        if (distance > outerRadius || distance < innerRadius) return;
 
-        const playableWidth = outerRadius - labelRadius;
+        const playableWidth = outerRadius - innerRadius;
         const distanceInward = outerRadius - distance;
         const percentage = distanceInward / playableWidth;
 
@@ -67,7 +69,7 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
         if (!canvas) return;
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
-        
+
         const totalDuration = tracks.reduce((acc, track) => acc + (track.duration || 0), 0);
 
         const render = () => {
@@ -84,8 +86,8 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             
             // Calculate dimensions based on current canvas size
-            const { centerX, centerY, outerRadius, labelRadius, holeRadius } = getVinylDimensions(canvas.width, canvas.height);
-            const playableWidth = (outerRadius - 5) - labelRadius;
+            const { centerX, centerY, outerRadius, innerRadius, labelRadius, holeRadius } = getVinylDimensions(canvas.width, canvas.height);
+            const playableWidth = (outerRadius - 5) - innerRadius;
 
             ctx.save();
             ctx.translate(centerX, centerY);
@@ -93,22 +95,28 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
             ctx.translate(-centerX, -centerY);
 
             // Base vinyl color
-            ctx.fillStyle = "#050505";
+            ctx.fillStyle = "#121212";
             ctx.beginPath();
             ctx.arc(centerX, centerY, outerRadius, 0, 2 * Math.PI);
             ctx.fill();
 
+            // Base vinyl color
+            ctx.fillStyle = "#1d1d1d";
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, innerRadius, 0, 2 * Math.PI);
+            ctx.fill();
+
             // Grooves for visual texture
-            ctx.strokeStyle = "#222";
-            ctx.lineWidth = 0.5 * dpr;
-            for (let r = outerRadius - 5; r > labelRadius; r -= 2 * dpr) {
+            ctx.strokeStyle = "#2e2e2e";
+            ctx.lineWidth = .3 * dpr;
+            for (let r = outerRadius - 5; r > innerRadius; r -= 2 * dpr) {
                 ctx.beginPath();
                 ctx.arc(centerX, centerY, r, 0, 2 * Math.PI);
                 ctx.stroke();
             }
 
             // Deep grooves for track separation
-            ctx.strokeStyle = "#000";
+            ctx.strokeStyle = "#1c1c1c";
             ctx.lineWidth = 3 * dpr;
             let currentDuration = 0;
             for (let i = 0; i < tracks.length - 1; i++) {
@@ -125,12 +133,11 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
             ctx.beginPath();
             ctx.arc(centerX, centerY, labelRadius, 0, 2 * Math.PI);
             ctx.fill();
-
             // Text
             ctx.fillStyle = "black";
             ctx.font = `bold ${14 * (canvas.width / 900)}px Arial`;
             ctx.textAlign = "center";
-            ctx.fillText(`${tracks.length} TRACKS`, centerX, centerY + 25);
+            ctx.fillText(`${tracks.length} ${tracks.length === 1 ? "TRACK" : "TRACKS"}`, centerX, centerY + 25);
             ctx.fillText(title || "Unknown Vinyl", centerX, centerY - (15 * (canvas.width / 900)));
 
             // Center hole
@@ -141,7 +148,9 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
 
             ctx.restore();
 
-            if (playingRef.current) rotationRef.current += 0.03;
+            if (playingRef.current) {
+                rotationRef.current += 0.03; 
+            }
             animationRef.current = requestAnimationFrame(render);
         };
 
@@ -151,7 +160,7 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
     }, [tracks]);
 
     return (
-        <div style={{ width: '100%', maxWidth: '600px', margin: '0 auto' }}>
+        <div style={{ width: '100%', margin: '0 auto' }}>
             <canvas
                 ref={canvasRef}
                 onClick={handleVinylClick}

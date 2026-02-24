@@ -1,0 +1,173 @@
+/* === General Reset & Layout === */
+* {
+box-sizing: border-box;
+margin: 0;
+padding: 0;
+font-family: 'Inter', sans-serif;
+}
+
+body {
+background-color: #f3f4f6; /* Tailwind bg-gray-200 */
+color: #333;
+}
+
+/* === Grid Layouts === */
+.grid-2cols {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 1.5rem; /* gap-6 */
+}
+
+.grid-2rows {
+display: grid;
+grid-template-rows: auto 1fr;
+gap: 1.5rem;
+min-height: 0; /* important for scrollable children */
+}
+
+.grid-inner-2cols {
+display: grid;
+grid-template-columns: repeat(2, 1fr);
+gap: 1.5rem;
+height: 35rem; /* matches h-140 */
+min-height: 0;
+}
+
+/* === Vinyl Container === */
+.vinyl-display {
+background-color: #9ca3af; /* gray-400 */
+aspect-ratio: 1 / 1;
+max-height: 100%;
+display: flex;
+align-items: center;
+justify-content: center;
+border-radius: 0.5rem;
+overflow: hidden;
+position: relative;
+}
+
+/* === Buttons === */
+button {
+cursor: pointer;
+border: none;
+border-radius: 0.375rem;
+padding: 0.5rem 1rem;
+font-weight: 500;
+transition: all 0.2s ease;
+}
+
+button:hover {
+opacity: 0.9;
+}
+
+/* Play/Pause Button */
+.play-btn {
+margin-top: 0.5rem;
+background-color: #3b82f6; /* Tailwind blue-500 */
+color: white;
+}
+
+/* File Upload & Submit Buttons */
+.file-btn, .submit-btn {
+width: 100%;
+background-color: #3b82f6;
+color: white;
+margin-top: 0.5rem;
+padding: 0.5rem;
+}
+
+/* === Lists === */
+.list, .list-vinyl {
+list-style: none;
+padding: 0;
+margin: 0;
+display: flex;
+flex-wrap: nowrap;
+gap: 0.75rem; /* spacing between items */
+overflow-x: auto; /* horizontal scrolling if needed */
+}
+
+.list-vinyl {
+flex-direction: row;
+height: 100%;
+overflow-y: auto;
+padding-right: 0.5rem;
+}
+
+.list li {
+background-color: #4b5563; /* gray-600 */
+color: white;
+padding: 0.75rem;
+border-radius: 0.375rem;
+cursor: pointer;
+transition: background-color 0.2s ease;
+flex-shrink: 0;
+min-width: 150px;
+}
+
+.list li:hover {
+background-color: #374151; /* gray-700 */
+}
+
+/* === Scrollbars (Optional: Clean) === */
+.list-vinyl::-webkit-scrollbar,
+.list::-webkit-scrollbar {
+height: 8px;
+width: 8px;
+}
+
+.list-vinyl::-webkit-scrollbar-thumb,
+.list::-webkit-scrollbar-thumb {
+background-color: rgba(107, 114, 128, 0.5);
+border-radius: 4px;
+}
+
+.list-vinyl::-webkit-scrollbar-track,
+.list::-webkit-scrollbar-track {
+background-color: transparent;
+}
+
+/* === Spinning Vinyl Items === */
+.sortable-item {
+display: flex;
+align-items: center;
+justify-content: center;
+background-color: #fff;
+border-radius: 0.5rem;
+box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+cursor: grab;
+aspect-ratio: 1 / 1;
+min-width: 150px;
+transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.sortable-item:active {
+cursor: grabbing;
+box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* === Form Input Fields === */
+input[type="text"] {
+width: 100%;
+padding: 0.5rem;
+border-radius: 0.375rem;
+border: 1px solid #d1d5db; /* gray-300 */
+margin-bottom: 1rem;
+}
+
+input[type="file"] {
+display: none;
+}
+
+/* === Scrollable Container Fixes === */
+.scroll-container {
+min-height: 0;
+min-width: 0;
+overflow: auto;
+}
+
+/* === Optional: Smooth Hover Effects === */
+.sortable-item:hover {
+transform: scale(1.03);
+box-shadow: 0 6px 12px rgba(0,0,0,0.12);
+}
