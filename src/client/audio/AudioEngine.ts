@@ -49,6 +49,13 @@ class AudioEngine {
             this.currentTrack = null;
         }
     }
+
+    getCurrentTime(): number {
+        if (this.currentTrack) {
+            return this.currentTrack.getCurrentTime();
+        }
+        return 0;
+    }
 }
 
 export {AudioEngine}

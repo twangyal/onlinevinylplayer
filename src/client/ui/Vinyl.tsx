@@ -9,8 +9,8 @@ const SIDE_A_TRACKS: Metadata[] = [
     { name: "Outro", duration: 300 },
 ];
 
-export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, active = false, playing }: 
-    { title?: string, tracks: Metadata[], handleClick?: (positionPercentage: number) => void, active?: boolean, playing?: boolean }) {
+export function SpinningVinyl({ title, tracks , active = false, playing }: 
+    { title?: string, tracks: Metadata[], active?: boolean, playing?: boolean }) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const rotationRef = useRef(0);
     const animationRef = useRef<number>(0);
@@ -36,33 +36,6 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
         };
     };
 
-    const handleVinylClick = (event: React.MouseEvent<HTMLCanvasElement>) => {
-        if (!handleClick || !active) return;
-        const canvas = canvasRef.current;
-        if (!canvas) return;
-
-        const rect = canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-
-        // Use rect dimensions (CSS pixels) for hit detection
-        const { centerX, centerY, outerRadius, innerRadius } = getVinylDimensions(rect.width, rect.height);
-
-        const dx = x - centerX;
-        const dy = y - centerY;
-        const distance = Math.sqrt(dx * dx + dy * dy);
-
-        if (distance > outerRadius || distance < innerRadius) return;
-
-        const playableWidth = outerRadius - innerRadius;
-        const distanceInward = outerRadius - distance;
-        const percentage = distanceInward / playableWidth;
-
-        console.log(`Playback Position: ${(percentage * 100).toFixed(1)}%`);
-        if (handleClick) {
-            handleClick(percentage.toFixed(3) as unknown as number);
-        }
-    };
 
     useEffect(() => {
         const canvas = canvasRef.current;
@@ -163,7 +136,6 @@ export function SpinningVinyl({ title, tracks = SIDE_A_TRACKS , handleClick, act
         <div style={{ width: '100%', margin: '0 auto' }}>
             <canvas
                 ref={canvasRef}
-                onClick={handleVinylClick}
                 style={{ 
                     width: "100%", 
                     height: "auto", 

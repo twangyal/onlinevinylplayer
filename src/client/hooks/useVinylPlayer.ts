@@ -1,5 +1,5 @@
 // src/hooks/useVinylPlayer.ts
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { VinylPlayer,  } from "../audio/VinylPlayer";
 import { AudioEngine } from "../audio/AudioEngine";
 import { Vinyl } from "@/src/model/Vinyl";
@@ -54,6 +54,13 @@ export function useVinylPlayer(engine: AudioEngine) {
         player.playFromPoint(percentage);
     };
 
+    const getProgress = useCallback(() => {
+        if(player.currentVinylId) {
+            return player.getCurrentProgress();
+        }
+        return 0;
+    }, [player]);
+
     return {
         isPlaying,
         currentId,
@@ -65,6 +72,7 @@ export function useVinylPlayer(engine: AudioEngine) {
         removeFromQueue,
         loadVinylLibrary,
         addVinylToLibrary,
-        playFromPoint
+        playFromPoint,
+        getProgress
     };
 }

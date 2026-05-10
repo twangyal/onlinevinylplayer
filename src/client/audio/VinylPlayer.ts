@@ -216,5 +216,25 @@ export class VinylPlayer {
             }
         }
     }
+
+    getCurrentProgress(): number {
+        if (!this.currentVinylId || !this.vinylLibrary[this.currentVinylId]) return 0;
+
+        const vinyl = this.vinylLibrary[this.currentVinylId];
+        if (!vinyl.tracks[0] || vinyl.tracks[0].length === 0 || !vinyl.tracks[0][0].audioBuffer) return 0;
+        
+        let elapsed = 0;
+        for (const track of vinyl.tracks[0]) {
+            if (!track.audioBuffer) continue;
+            elapsed += track.audioBuffer.duration;
+
+            if (this.engine.currentTrack?.track === track) {
+                elapsed -= track.audioBuffer.duration;
+                elapsed += this.engine.getCurrentTime();
+                break;
+            }
+        }
+        return this.currentVinylDuration > 0 ? elapsed / this.currentVinylDuration : 0;
+    }
 }
 

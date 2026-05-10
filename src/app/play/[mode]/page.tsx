@@ -16,7 +16,7 @@ export default async function PlayPage({ params }: { params: { mode: string } })
         }
     }
     return (
-        <main>
+        <main className="h-full w-full overflow-hidden">
             <PlayView 
                 isLoggedIn={!local} 
                 initialData={[]}

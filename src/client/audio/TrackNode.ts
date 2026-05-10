@@ -51,6 +51,14 @@ export class TrackNode {
         this.offset += this.pausedAt - this.startFrom;
         this.source = null;
     }
+    
+    getCurrentTime(): number {
+        let time = this.offset;
+        if (this.source) {
+            time += this.context.currentTime - this.startFrom;
+        }
+        return time;
+    }
 
     stop(){
         if(this.source) {
@@ -63,4 +71,5 @@ export class TrackNode {
             this.source = null;
         }
     }
+
 }

@@ -5,18 +5,22 @@ import { Metadata } from "@/src/model/Metadata";
 
 
 //  title, tracks, playing, setPlaying
-export function VinylPlayer({ title, tracks, handleClick, active, playing, setPlaying }: 
+export function VinylPlayer({ title, tracks, handleClick, active, playing, setPlaying, getProgress }: 
   { title?: string, 
     tracks: Metadata[], 
     handleClick?: (positionPercentage: number) => void, 
     active?: boolean, 
     playing?: boolean, 
-    setPlaying?: (playing: boolean) => void }) {
+    setPlaying?: (playing: boolean) => void 
+    getProgress?: () => number 
+  }) {
+      
   return (
     <div style={{
       position: 'relative',
       width: '90%',
       aspectRatio: '1 / 1',
+      containerType: 'inline-size',
       background: 'linear-gradient(135deg, #686868 0%, #5a5a5a 25%, #797777 40%, #807f7f 60%, #9f9b9b 80%, #a9a9a9 100%)',
       borderRadius: '24px',
       padding: '40px',
@@ -33,7 +37,7 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      margin: '20px auto'
+      margin: 'auto'
     }}>
       
       {/* 3. Metallic Platter Outer Ring */}
@@ -82,41 +86,53 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
       }} />
 
       {/* Tonearm */}
+      <Tonearm 
+        tracks={tracks}
+        playing={playing || false} 
+        setPlaying={setPlaying || (() => {})} 
+        getProgress={getProgress}
+        onPositionChange={handleClick} 
+      />
+
       {/* Metallic Play/Stop Button */}
       <div style={{
         position: 'absolute',
-        bottom: '30px',
-        left: '30px',
+        bottom: '5%',
+        left: '5%',
         display: 'flex',
         alignItems: 'center',
-        gap: '15px'
+        gap: '2.5cqi'
       }}>
         <div style={{
-          width: '12px',
-          height: '12px',
+          width: '2cqi',
+          height: '2cqi',
           borderRadius: '50%',
-          backgroundColor: playing ? '#ff3d00' : '#444',
-          boxShadow: playing ? '0 0 12px #ff3d00, inset 0 2px 4px rgba(0,0,0,0.5)' : 'inset 0 2px 4px rgba(0,0,0,0.5)',
-          border: '2px solid #ccc',
+          backgroundColor: playing ? '#15ff00' : '#444',
+          boxShadow: playing ? '0 0 2cqi #51ff00, inset 0 0.3cqi 0.6cqi rgba(0,0,0,0.5)' : 'inset 0 0.3cqi 0.6cqi rgba(0,0,0,0.5)',
+          border: '0.3cqi solid #ccc',
           transition: 'all 0.3s'
         }} />
         <button 
           onClick={() => setPlaying?.(!playing)}
           style={{
-            padding: '8px 20px',
-            borderRadius: '6px',
-            border: '1px solid #999',
-            background: 'linear-gradient(to bottom, #f0f0f0, #c0c0c0)',
+            padding: '1.5cqi 3.5cqi',
+            borderRadius: '1cqi',
+            border: '0.2cqi solid #999',
+            background: !playing ? 'linear-gradient(to bottom, #f0f0f0, #c0c0c0)' : 'linear-gradient(to bottom, #d2d1d1, #b7b6b6)',
             color: '#333',
             cursor: 'pointer',
+            fontSize: '2.5cqi',
             fontWeight: 'bold',
             textTransform: 'uppercase',
-            letterSpacing: '1px',
-            boxShadow: '0 2px 5px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.8)',
-            textShadow: '0 1px 0 rgba(255,255,255,0.5)'
+            letterSpacing: '0.2cqi',
+            boxShadow: '0 0.3cqi 0.8cqi rgba(0,0,0,0.2), inset 0 0.2cqi 0 rgba(255,255,255,0.8)',
+            textShadow: '0 0.2cqi 0 rgba(255,255,255,0.5)',
+            userSelect: 'none',
+            pointerEvents: 'auto',
+            zIndex: 10
           }}
         >
-          {playing ? "Stop" : "Start"}
+          Play
         </button>
       </div>
     </div>
