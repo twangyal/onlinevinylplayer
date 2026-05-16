@@ -1,19 +1,23 @@
 import { SpinningVinyl } from "./Vinyl";
 import { Tonearm } from "./Tonearm";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Metadata } from "@/src/model/Metadata";
 
 
+
 //  title, tracks, playing, setPlaying
-export function VinylPlayer({ title, tracks, handleClick, active, playing, setPlaying, getProgress }: 
+export function VinylPlayer({ title, tracks, handleClick, active, playing, setPlaying, getProgress, isSwitching }: 
   { title?: string, 
     tracks: Metadata[], 
     handleClick?: (positionPercentage: number) => void, 
     active?: boolean, 
     playing?: boolean, 
-    setPlaying?: (playing: boolean) => void 
-    getProgress?: () => number 
+    setPlaying?: (playing: boolean) => void,
+    getProgress?: () => number,
+    isSwitching?: boolean
   }) {
+
+    const [onOrOff, setOnOrOff] = useState(false)
       
   return (
     <div style={{
@@ -64,11 +68,17 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
 
       {/* The Vinyl Component */}
       { active &&
-      <div style={{ zIndex: 2, width: '98%' }}>
+      <div style={{ 
+        zIndex: 2, 
+        width: '98%',
+        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+        transform: isSwitching ? 'translateY(-150%) scale(0.8)' : 'translateY(0) scale(1)',
+        opacity: isSwitching ? 0 : 1
+      }}>
         <SpinningVinyl 
           title={title} 
           tracks={tracks} 
-          active={active}
+          active={playing}
           playing={playing} 
         />
       </div>}

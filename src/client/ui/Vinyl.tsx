@@ -14,11 +14,11 @@ export function SpinningVinyl({ title, tracks , active = false, playing }:
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
     const rotationRef = useRef(0);
     const animationRef = useRef<number>(0);
-    const playingRef = useRef(!!playing);
+    const playingRef = useRef(!!active);
 
     useEffect(() => {
-        playingRef.current = !!playing;
-    }, [playing]);
+        playingRef.current = !!active;
+    }, [active]);
 
     const getVinylDimensions = (width: number, height: number) => {
         const centerX = width / 2;

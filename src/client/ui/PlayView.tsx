@@ -91,7 +91,7 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
                 <SpinningVinyl
                     title={dataId && (data[dataId] as Vinyl)?.name || 'Unknown Vinyl'}
                     tracks={dataId && (data[dataId] as Vinyl)?.tracks[1]! || []}
-                    active={false}
+                    active={isHovering}
                     playing={false}
                 />
                 {dataId && (
@@ -249,17 +249,22 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
         } else {
             if (play !== isPlaying) {
                 togglePlay();
+                toggleIsPlaying(play);
             }
         }
     };
 
+    const [isSwitching, setIsSwitching] = useState(false);
+
     function newVinylCallback(): void {
-        
+        setIsSwitching(true);
+        setTimeout(() => setIsSwitching(false), 150);
     }
 
     function onNoMoreVinylsCallback(): void {
         console.log("No more vinyls to play.");
         toggleIsPlaying(false);
+        setIsSwitching(true);
     }
 
     return (
@@ -275,6 +280,7 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                     playing={isPlaying} 
                     setPlaying={pauseOrPlay}
                     getProgress={getProgress}
+                    isSwitching={isSwitching}
                     />
                 </div>
 
