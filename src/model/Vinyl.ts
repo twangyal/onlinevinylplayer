@@ -30,3 +30,10 @@ export function currentTrack(vinyl: Vinyl): Track | undefined {
     return vinyl.tracks[0][vinyl.currentTrackIndex];
 }
 
+export function resetTrack(vinyl: Vinyl): Vinyl {
+    return {
+        ...vinyl,
+        currentTrackIndex: 0,
+    };
+}
+

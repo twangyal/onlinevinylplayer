@@ -127,8 +127,8 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
 export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLoggedIn: boolean }) {
     const audioEngine = useAudioEngine();
     const { isPlaying, currentId, queue, vinylLibrary,
-        togglePlay, addToQueue, moveInQueue, removeFromQueue, 
-        loadVinylLibrary, addVinylToLibrary, playFromPoint, getProgress } = useVinylPlayer(audioEngine);
+        togglePlay, toggleIsPlaying, addToQueue, moveInQueue, removeFromQueue, 
+        loadVinylLibrary, addVinylToLibrary, playFromPoint, getProgress } = useVinylPlayer(audioEngine, newVinylCallback, onNoMoreVinylsCallback);
     
     const [fileOrder, setFileOrder] = useState<QueueItem[]>([]);
     const [audioFiles, setAudioFiles] = useState<Record<string, {id: string, file: File}>>({});
@@ -242,6 +242,8 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
     };
 
     const pauseOrPlay = (play? : boolean) => {
+        console.log("PauseOrPlay called with play =", play);
+        console.log("Current isPlaying state before toggle:", isPlaying);
         if (play === undefined) {
             togglePlay();
         } else {
@@ -250,6 +252,15 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
             }
         }
     };
+
+    function newVinylCallback(): void {
+        
+    }
+
+    function onNoMoreVinylsCallback(): void {
+        console.log("No more vinyls to play.");
+        toggleIsPlaying(false);
+    }
 
     return (
         <div className="w-full h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col lg:flex-row overflow-hidden">

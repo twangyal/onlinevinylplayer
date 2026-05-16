@@ -46,7 +46,6 @@ export function Tonearm({ tracks, playing, setPlaying, getProgress, onPositionCh
       // Convert to angle and update state
       if (!currentProgress) return;
       const newAngle = getAngleFromPosition(currentProgress);
-      console.log("Animating tonearm, progress:", currentProgress, "-> angle:", newAngle);
       setAngle(newAngle);
       
       // Loop for the next frame

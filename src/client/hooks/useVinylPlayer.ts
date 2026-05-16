@@ -5,9 +5,9 @@ import { AudioEngine } from "../audio/AudioEngine";
 import { Vinyl } from "@/src/model/Vinyl";
 import { QueueItem } from "@/src/model/Queue";
 
-export function useVinylPlayer(engine: AudioEngine) {
-    const player = useMemo(() => new VinylPlayer(engine), [engine]);
-    
+export function useVinylPlayer(engine: AudioEngine, newVinylCallback: () => void, onNoMoreVinyls?: () => void) {
+    const player = useMemo(() => new VinylPlayer(engine, newVinylCallback, onNoMoreVinyls), [engine]);
+
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentId, setCurrentId] = useState("");
     const [queue, setQueue] = useState<QueueItem[]>([]);
@@ -19,8 +19,14 @@ export function useVinylPlayer(engine: AudioEngine) {
             setQueue([...player.vinylQueue]);
             setVinylLibrary({...player.vinylLibrary});
             setIsPlaying(!player.paused);
+        } else {
+            setIsPlaying(false);
         }
     }
+
+    const toggleIsPlaying = (bool: boolean) => {
+        setIsPlaying(bool);
+    };
 
     const moveInQueue = (event: any) => {
         player.moveInQueue(event);
@@ -67,6 +73,7 @@ export function useVinylPlayer(engine: AudioEngine) {
         queue,
         vinylLibrary,
         togglePlay,
+        toggleIsPlaying,
         addToQueue,
         moveInQueue,
         removeFromQueue,

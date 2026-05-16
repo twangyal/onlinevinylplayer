@@ -68,7 +68,6 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
         <SpinningVinyl 
           title={title} 
           tracks={tracks} 
-          handleClick={handleClick} 
           active={active}
           playing={playing} 
         />

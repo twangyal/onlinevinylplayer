@@ -1,4 +1,4 @@
-import { currentTrack, type Vinyl, nextTrack, prevTrack } from "@/src/model/Vinyl";
+import { currentTrack, type Vinyl, nextTrack, prevTrack, resetTrack } from "@/src/model/Vinyl";
 import { AudioEngine } from "./AudioEngine";
 import { TrackNode } from "./TrackNode";
 import { VinylBuffers } from "@/src/client/audio/VinylBuffers";
@@ -23,12 +23,17 @@ export class VinylPlayer {
     engine : AudioEngine;
     VB : VinylBuffers;
     abortControllerRef = { current: null as AbortController | null };
+
+    onVinylChange?: () => void;
+    onNoMoreVinyls?: () => void;
     
     
 
-    constructor(engine:AudioEngine) {
+    constructor(engine:AudioEngine, onVinylChange?: () => void, onNoMoreVinyls?: () => void) {
         this.engine = engine;
         this.VB = new VinylBuffers(engine);
+        this.onVinylChange = onVinylChange;
+        this.onNoMoreVinyls = onNoMoreVinyls;
     }
 
     addVinylToLibrary(vinyl: Vinyl) {
@@ -40,39 +45,43 @@ export class VinylPlayer {
         this.vinylLibrary = {};
     }
 
-    playNextTrack(skip:boolean=true, newVinylCallback: () => void = () => {}) {
+    playNextTrack(skip:boolean=true) {
         // stop current track
         this.engine.stop();
         while(true){
         // if no current vinyl, grab one
             if(this.currentVinylId == ""){ 
                 // if no more vinyls, stop
-                if(!this.dequeue()) {this.start=true;return;}
-                newVinylCallback();
+                this.onVinylChange?.();
+                if(!this.dequeue()) {console.log("No more vinyls to play");this.start=true;this.onNoMoreVinyls?.();return;}
                 skip = false;
             }
             // if its not just starting, skip to next track
             if(skip) {this.vinylLibrary[this.currentVinylId] = nextTrack(this.vinylLibrary[this.currentVinylId])};
             const track = currentTrack(this.vinylLibrary[this.currentVinylId]);
             // if no more tracks, try next vinyl
-            if(!track) {this.pastVinyls.push(this.vinylLibrary[this.currentVinylId]);this.currentVinylId=""; continue;}
-
-            this.engine.connect(new TrackNode(this.engine.context, track), () => {if(!this.paused)this.playNextTrack(true, newVinylCallback)});
+            if(!track) {
+                console.log("No more tracks on current vinyl. Moving to next vinyl.");
+                this.vinylLibrary[this.currentVinylId] = resetTrack(this.vinylLibrary[this.currentVinylId]);
+                this.pastVinyls.push(this.vinylLibrary[this.currentVinylId]);
+                this.currentVinylId=""; 
+                continue;
+            }
+            this.engine.connect(new TrackNode(this.engine.context, track), () => {if(!this.paused)this.playNextTrack(true)});
             this.engine.play();
             break;
         }
         return;
     }
     
-    pauseAndPlayTrack(newVinylCallback: () => void = () => {}):boolean{
-        if(this.currentVinylId === "" && this.vinylQueue.length === 0) return false;
+    pauseAndPlayTrack():boolean{
+        if(this.currentVinylId === "" && this.vinylQueue.length === 0) {return false;}
         if(this.paused){ 
             this.paused = false
             this.engine.play();
         } else{
             if(this.start){
-                this.dequeue();
-                this.playNextTrack(false, newVinylCallback);
+                this.playNextTrack(false);
                 this.start = false;
             }
             else{
