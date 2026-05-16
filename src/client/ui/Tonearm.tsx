@@ -20,7 +20,10 @@ export function getAngleFromPosition(position: number): number {
   return outerEdge + position * (innerEdge - outerEdge);
 }
 
-export function Tonearm({ tracks, playing, setPlaying, getProgress, onPositionChange }: { tracks: Metadata[], playing: boolean, setPlaying: (p: boolean) => void, getProgress?: () => number, onPositionChange?: (pos: number) => void }) {
+export function Tonearm({ tracks, playing, setPlaying, spinning, getProgress, onPositionChange }: 
+  { tracks: Metadata[], playing: boolean, setPlaying: (p: boolean) => void, 
+    spinning: boolean, getProgress?: () => number, onPositionChange?: (pos: number) => void }) {
+
   const armRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [angle, setAngle] = useState(-5);
@@ -96,7 +99,10 @@ export function Tonearm({ tracks, playing, setPlaying, getProgress, onPositionCh
         console.log("Final vinyl position:", position);
         if (position === 0 || position === 1) {
           setPlaying(false);
+          onPositionChange(0);
+          return;
         }
+        if(spinning) setPlaying(true);
         onPositionChange(position);
       }
     }

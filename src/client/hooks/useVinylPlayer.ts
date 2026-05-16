@@ -24,10 +24,6 @@ export function useVinylPlayer(engine: AudioEngine, newVinylCallback: () => void
         }
     }
 
-    const toggleIsPlaying = (bool: boolean) => {
-        setIsPlaying(bool);
-    };
-
     const moveInQueue = (event: any) => {
         player.moveInQueue(event);
         setQueue(player.vinylQueue);
@@ -73,7 +69,6 @@ export function useVinylPlayer(engine: AudioEngine, newVinylCallback: () => void
         queue,
         vinylLibrary,
         togglePlay,
-        toggleIsPlaying,
         addToQueue,
         moveInQueue,
         removeFromQueue,

@@ -127,7 +127,7 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
 export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLoggedIn: boolean }) {
     const audioEngine = useAudioEngine();
     const { isPlaying, currentId, queue, vinylLibrary,
-        togglePlay, toggleIsPlaying, addToQueue, moveInQueue, removeFromQueue, 
+        togglePlay, addToQueue, moveInQueue, removeFromQueue, 
         loadVinylLibrary, addVinylToLibrary, playFromPoint, getProgress } = useVinylPlayer(audioEngine, newVinylCallback, onNoMoreVinylsCallback);
     
     const [fileOrder, setFileOrder] = useState<QueueItem[]>([]);
@@ -243,13 +243,11 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
 
     const pauseOrPlay = (play? : boolean) => {
         console.log("PauseOrPlay called with play =", play);
-        console.log("Current isPlaying state before toggle:", isPlaying);
         if (play === undefined) {
             togglePlay();
         } else {
             if (play !== isPlaying) {
                 togglePlay();
-                toggleIsPlaying(play);
             }
         }
     };
@@ -263,8 +261,7 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
 
     function onNoMoreVinylsCallback(): void {
         console.log("No more vinyls to play.");
-        toggleIsPlaying(false);
-        setIsSwitching(true);
+        togglePlay();
     }
 
     return (

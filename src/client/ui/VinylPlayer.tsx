@@ -78,7 +78,7 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
         <SpinningVinyl 
           title={title} 
           tracks={tracks} 
-          active={playing}
+          active={onOrOff}
           playing={playing} 
         />
       </div>}
@@ -99,6 +99,7 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
         tracks={tracks}
         playing={playing || false} 
         setPlaying={setPlaying || (() => {})} 
+        spinning = {onOrOff}
         getProgress={getProgress}
         onPositionChange={handleClick} 
       />
@@ -116,18 +117,18 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
           width: '2cqi',
           height: '2cqi',
           borderRadius: '50%',
-          backgroundColor: playing ? '#15ff00' : '#444',
-          boxShadow: playing ? '0 0 2cqi #51ff00, inset 0 0.3cqi 0.6cqi rgba(0,0,0,0.5)' : 'inset 0 0.3cqi 0.6cqi rgba(0,0,0,0.5)',
+          backgroundColor: onOrOff ? '#15ff00' : '#444',
+          boxShadow: onOrOff ? '0 0 2cqi #51ff00, inset 0 0.3cqi 0.6cqi rgba(0,0,0,0.5)' : 'inset 0 0.3cqi 0.6cqi rgba(0,0,0,0.5)',
           border: '0.3cqi solid #ccc',
           transition: 'all 0.3s'
         }} />
         <button 
-          onClick={() => setPlaying?.(!playing)}
+          onClick={() => {setPlaying?.(!onOrOff); setOnOrOff(!onOrOff)}}
           style={{
             padding: '1.5cqi 3.5cqi',
             borderRadius: '1cqi',
             border: '0.2cqi solid #999',
-            background: !playing ? 'linear-gradient(to bottom, #f0f0f0, #c0c0c0)' : 'linear-gradient(to bottom, #d2d1d1, #b7b6b6)',
+            background: !onOrOff ? 'linear-gradient(to bottom, #f0f0f0, #c0c0c0)' : 'linear-gradient(to bottom, #d2d1d1, #b7b6b6)',
             color: '#333',
             cursor: 'pointer',
             fontSize: '2.5cqi',
