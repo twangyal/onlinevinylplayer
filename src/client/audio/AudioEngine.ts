@@ -56,6 +56,10 @@ class AudioEngine {
         }
         return 0;
     }
+
+    setVolume(volume: number) {
+        this.masterGain.gain.value = volume;
+    }
 }
 
 export {AudioEngine}

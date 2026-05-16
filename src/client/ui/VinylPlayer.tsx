@@ -78,7 +78,7 @@ export function VinylPlayer({ title, tracks, handleClick, active, playing, setPl
         <SpinningVinyl 
           title={title} 
           tracks={tracks} 
-          active={onOrOff}
+          active={active && onOrOff}
           playing={playing} 
         />
       </div>}

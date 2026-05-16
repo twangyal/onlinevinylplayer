@@ -126,9 +126,10 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
 
 export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLoggedIn: boolean }) {
     const audioEngine = useAudioEngine();
-    const { isPlaying, currentId, queue, vinylLibrary,
+    const { isPlaying, currentId, queue, vinylLibrary, volume,
         togglePlay, addToQueue, moveInQueue, removeFromQueue, 
-        loadVinylLibrary, addVinylToLibrary, playFromPoint, getProgress } = useVinylPlayer(audioEngine, newVinylCallback, onNoMoreVinylsCallback);
+        loadVinylLibrary, addVinylToLibrary, playFromPoint, getProgress, changeVolume } 
+        = useVinylPlayer(audioEngine, newVinylCallback, onNoMoreVinylsCallback);
     
     const [fileOrder, setFileOrder] = useState<QueueItem[]>([]);
     const [audioFiles, setAudioFiles] = useState<Record<string, {id: string, file: File}>>({});
@@ -256,11 +257,13 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
 
     function newVinylCallback(): void {
         setIsSwitching(true);
+        console.log("Current id", !!currentId)
         setTimeout(() => setIsSwitching(false), 150);
     }
 
     function onNoMoreVinylsCallback(): void {
         console.log("No more vinyls to play.");
+        console.log("Current id", !!currentId)
         togglePlay();
     }
 
@@ -279,7 +282,29 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                     getProgress={getProgress}
                     isSwitching={isSwitching}
                     />
+
+                    {/* Volume Control Section */}
+                    <div className="absolute top-1/3 -translate-y-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg p-3 flex flex-col items-center gap-3 w-10">
+                        <span className="text-xs font-mono text-gray-500">
+                            {Math.round(volume * 100)}
+                        </span>
+                        <div className="h-32 flex items-center">
+                            <input
+                                type="range"
+                                min="0"
+                                max="1"
+                                step="0.01"
+                                value={volume}
+                                onChange={(e) => changeVolume(parseFloat(e.target.value))}
+                                className="h-2 w-24 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-700 -rotate-90"
+                            />
+                        </div>
+                        <span className="text-sm">
+                            {volume === 0 ? "🔇" : volume < 0.5 ? "🔉" : "🔊"}
+                        </span>
+                    </div>
                 </div>
+
 
                 {/* Queue Section */}
                 <div className="rounded-2xl shadow-md bg-white p-6 flex flex-col min-h-0 flex-1">

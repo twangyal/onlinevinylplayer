@@ -245,5 +245,9 @@ export class VinylPlayer {
         }
         return this.currentVinylDuration > 0 ? elapsed / this.currentVinylDuration : 0;
     }
+
+    setVolume(volume: number) {
+        this.engine.setVolume(volume);
+    }
 }
 

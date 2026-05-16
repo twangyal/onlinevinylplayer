@@ -72,4 +72,7 @@ export class TrackNode {
         }
     }
 
+    setVolume(volume: number) {
+        this.gainNode.gain.value = volume;
+    }
 }

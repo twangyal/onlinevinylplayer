@@ -12,10 +12,12 @@ export function useVinylPlayer(engine: AudioEngine, newVinylCallback: () => void
     const [currentId, setCurrentId] = useState("");
     const [queue, setQueue] = useState<QueueItem[]>([]);
     const [vinylLibrary, setVinylLibrary] = useState<Record<string, Vinyl>>({});
+    const [volume, setVolume] = useState(1);
 
     const togglePlay = () => {
         if(player.pauseAndPlayTrack()) {
             setCurrentId(player.currentVinylId);
+            console.log("current id is ", currentId)
             setQueue([...player.vinylQueue]);
             setVinylLibrary({...player.vinylLibrary});
             setIsPlaying(!player.paused);
@@ -63,11 +65,17 @@ export function useVinylPlayer(engine: AudioEngine, newVinylCallback: () => void
         return 0;
     }, [player]);
 
+    const changeVolume = (volume: number) => {
+        player.setVolume(volume);
+        setVolume(volume);
+    };
+
     return {
         isPlaying,
         currentId,
         queue,
         vinylLibrary,
+        volume,
         togglePlay,
         addToQueue,
         moveInQueue,
@@ -75,6 +83,7 @@ export function useVinylPlayer(engine: AudioEngine, newVinylCallback: () => void
         loadVinylLibrary,
         addVinylToLibrary,
         playFromPoint,
-        getProgress
+        getProgress,
+        changeVolume,
     };
 }
