@@ -61,8 +61,8 @@ export const vinylRepositorySupabase: VinylRepository = {
             id: data.id,
             name: data.title,
             tracks: [
-                tracks.map(url => ({ audio: url, gain: 1 })),
-                metadata.map(meta => ({name: meta, fade: 0, length: 0}))
+                tracks.map((url: string) => ({ audioUrl: url, audioBuffer: null, gain: 1 })),
+                metadata.map((meta: string) => ({name: meta, fade: 0, length: 0}))
             ],
             numberOfTracks: tracks.length,
             currentTrackIndex: 0
@@ -83,7 +83,7 @@ export const vinylRepositorySupabase: VinylRepository = {
 
         const songsToInsert = vinyl.tracks[1].map((meta, index) => ({
             title: meta.name,
-            audio_url: vinyl.tracks[0][index].audio,
+            audio_url: vinyl.tracks[0][index].audioUrl,
             user_id: userId
         }));
 

@@ -25,10 +25,11 @@ export function AddVinylForm({ userId }: { userId: string }) {
             audioFiles.map(file => uploadAudio(file, userId))
         );
 
-        const tracks = trackUrls.map(url => ({ audio: url, gain: 1 }));
+        const tracks = trackUrls.map(url => ({ audioUrl: url, audioBuffer: null, gain: 1 }));
         const metadata = audioFiles.map(file => ({ name: file.name }));
 
         await saveVinylAction({
+            id: "",
             name: formData.get("vinylName") as string,
             tracks: [tracks, metadata],
             numberOfTracks: trackUrls.length,
