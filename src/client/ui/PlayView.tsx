@@ -11,6 +11,7 @@ import { createVinyl } from "../factories/createVinyl";
 import { useVinylPlayer } from "../hooks/useVinylPlayer";
 import { QueueItem } from "@/src/model/Queue";
 import { VinylPlayer } from "./VinylPlayer";
+import { Music, ListMusic, Plus, X, Volume2, Volume1, VolumeX, Library } from "lucide-react";
 
 
 function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}: {
@@ -32,7 +33,7 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
         {isFile ? (
         <li 
             ref={setElement} 
-            className="item" 
+            className={`item flex items-center gap-3 p-3 rounded-xl border border-stone-200 dark:border-stone-800 bg-white/50 dark:bg-stone-900/50 backdrop-blur-sm transition-all ${isDragging ? 'shadow-lg scale-105 border-stone-400 dark:border-stone-600' : 'hover:border-stone-300 dark:hover:border-stone-700'}`} 
             data-shadow={isDragging || undefined}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
@@ -47,7 +48,7 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
             />
             <button 
                 onClick={(e) => ((e.currentTarget.previousElementSibling as HTMLInputElement)?.click())}
-                className="flex-1 text-left text-sm hover:text-blue-600 transition-colors overflow-hidden min-w-0"
+                className="flex-1 text-left text-sm font-medium text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white transition-colors overflow-hidden min-w-0"
                 style={{ textOverflow: 'ellipsis' }}
             >
                 <span 
@@ -72,22 +73,22 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
             {onRemove && (
                 <button 
                     onClick={() => onRemove(id, index)} 
-                    className="text-red-500 hover:text-red-700 mx-2 text-lg font-bold flex-shrink-0"
+                    className="text-red-500/70 hover:text-red-500 transition-colors mx-2 flex-shrink-0"
                     title="Remove track"
                 >
-                    ×
+                    <X size={18} />
                 </button>
             )}
-            <button ref={handleRef} className="handle cursor-grab active:cursor-grabbing flex-shrink-0" title="Drag to reorder" />
+            <button ref={handleRef} className="handle cursor-grab active:cursor-grabbing flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity" title="Drag to reorder" />
         </li>):
         (<li 
             ref={setElement} 
-            className="item-vinyl p-2 bg-gray-50 rounded-lg border border-gray-100" 
+            className={`item-vinyl p-3 bg-white/60 dark:bg-stone-900/60 backdrop-blur-md rounded-2xl border border-stone-200 dark:border-stone-800/50 shadow-sm transition-all ${isDragging ? 'scale-105 shadow-xl border-stone-400 dark:border-stone-600 z-10' : 'hover:-translate-y-1 hover:shadow-md'}`} 
             data-shadow={isDragging || undefined}
             onMouseEnter={() => setIsHovering(true)}
             onMouseLeave={() => setIsHovering(false)}
         >
-            <div className="flex flex-col items-center w-18 mx-auto aspect-square">
+            <div className="flex flex-col items-center w-24 mx-auto aspect-square">
                 <SpinningVinyl
                     title={dataId && (data[dataId] as Vinyl)?.name || 'Unknown Vinyl'}
                     tracks={dataId && (data[dataId] as Vinyl)?.tracks[1]! || []}
@@ -95,13 +96,13 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
                     playing={false}
                 />
                 {dataId && (
-                    <div className="w-full mt-2 overflow-hidden h-4">
+                    <div className="w-full mt-3 overflow-hidden h-5">
                         <span 
                             className="marquee"
                             style={{ display: isHovering ? 'block' : 'none' }}
                         >
                             <span 
-                                className="marquee-text text-xs font-medium text-gray-700 whitespace-nowrap inline-block" 
+                                className="marquee-text text-xs font-semibold text-stone-800 dark:text-stone-200 whitespace-nowrap inline-block" 
                                 style={{
                                     animation: isHovering ? 'marquee 4s linear infinite' : 'none'
                                 }}
@@ -110,7 +111,7 @@ function Sortable({id, index, handleLocalUpload, data, isFile, dataId, onRemove}
                             </span>
                         </span>
                         <span 
-                            className="text-xs block text-center font-medium text-gray-700 truncate"
+                            className="text-xs block text-center font-semibold text-stone-800 dark:text-stone-200 truncate"
                             style={{ display: isHovering ? 'none' : 'block' }}
                         >
                             {(data[dataId] as Vinyl)?.name || 'Unknown Vinyl'}
@@ -211,7 +212,6 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
 
         if (orderedFiles.length === 0) return;
 
-        // Create track objects with audio URLs and metadata to fit domains of Vinyl and Track models
         const localTracks = orderedFiles.map(file => ({
             audioUrl: URL.createObjectURL(file.file as File),
             audioBuffer: null,
@@ -268,27 +268,31 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
     }
 
     return (
-        <div className="w-full h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex flex-col lg:flex-row overflow-hidden">
-            {/* Vinyl Player Section - Sticky on desktop, scrollable on mobile */}
-            <div className="w-full lg:w-1/2 lg:h-screen lg:overflow-y-auto p-4 lg:p-8 flex flex-col lg:flex-col gap-8">
-                <div className="w-full max-w-[min(100%,67vh)] lg:max-w-[min(100%,67vh)] mx-auto  rounded-2xl flex-shrink-0">
+        <div className="relative w-full h-screen bg-stone-50 dark:bg-stone-950 text-stone-950 dark:text-stone-50 flex flex-col lg:flex-row overflow-hidden">
+            {/* Background decorations */}
+            <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-amber-600/10 dark:bg-amber-600/20 blur-[120px] pointer-events-none" />
+            <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] rounded-full bg-orange-600/10 dark:bg-orange-600/20 blur-[120px] pointer-events-none" />
+            
+            {/* Vinyl Player Section */}
+            <div className="w-full lg:w-1/2 lg:h-screen lg:overflow-y-auto p-4 lg:p-8 flex flex-col lg:flex-col gap-8 z-10">
+                <div className="relative w-full max-w-[min(100%,67vh)] lg:max-w-[min(100%,67vh)] mx-auto rounded-3xl flex-shrink-0 bg-white/30 dark:bg-stone-900/30 backdrop-blur-3xl shadow-2xl border border-stone-200/50 dark:border-stone-800/50 p-6">
                     <VinylPlayer 
-                    title={currentId ? vinylLibrary[currentId]?.name : "No Vinyl Playing"} 
-                    tracks={currentId ? vinylLibrary[currentId]?.tracks[1] : []} 
-                    handleClick={handleVinylClick} 
-                    active={!!currentId} 
-                    playing={isPlaying} 
-                    setPlaying={pauseOrPlay}
-                    getProgress={getProgress}
-                    isSwitching={isSwitching}
+                        title={currentId ? vinylLibrary[currentId]?.name : "No Vinyl Playing"} 
+                        tracks={currentId ? vinylLibrary[currentId]?.tracks[1] : []} 
+                        handleClick={handleVinylClick} 
+                        active={!!currentId} 
+                        playing={isPlaying} 
+                        setPlaying={pauseOrPlay}
+                        getProgress={getProgress}
+                        isSwitching={isSwitching}
                     />
 
                     {/* Volume Control Section */}
-                    <div className="absolute top-1/3 -translate-y-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-sm rounded-full shadow-lg p-3 flex flex-col items-center gap-3 w-10">
-                        <span className="text-xs font-mono text-gray-500">
+                    <div className="absolute top-1/2 -translate-y-1/2 -left-6 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md border border-stone-200 dark:border-stone-700/50 rounded-full shadow-xl p-3 flex flex-col items-center gap-4 w-12 z-20 transition-transform hover:scale-105">
+                        <span className="text-xs font-mono font-medium text-stone-500 dark:text-stone-400">
                             {Math.round(volume * 100)}
                         </span>
-                        <div className="h-32 flex items-center">
+                        <div className="h-32 flex items-center justify-center">
                             <input
                                 type="range"
                                 min="0"
@@ -296,27 +300,26 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                                 step="0.01"
                                 value={volume}
                                 onChange={(e) => changeVolume(parseFloat(e.target.value))}
-                                className="h-2 w-24 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-gray-700 -rotate-90"
+                                className="h-1.5 w-28 bg-stone-200 dark:bg-stone-700 rounded-lg appearance-none cursor-pointer accent-stone-900 dark:accent-white -rotate-90"
                             />
                         </div>
-                        <span className="text-sm">
-                            {volume === 0 ? "🔇" : volume < 0.5 ? "🔉" : "🔊"}
+                        <span className="text-stone-700 dark:text-stone-300">
+                            {volume === 0 ? <VolumeX size={18} /> : volume < 0.5 ? <Volume1 size={18} /> : <Volume2 size={18} />}
                         </span>
                     </div>
                 </div>
 
-
                 {/* Queue Section */}
-                <div className="rounded-2xl shadow-md bg-white p-6 flex flex-col min-h-0 flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2 flex-shrink-0 mb-1">
-                        <span>🎵</span> Queue
+                <div className="rounded-3xl shadow-xl bg-white/60 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800/50 backdrop-blur-md p-6 flex flex-col min-h-0 flex-1">
+                    <h3 className="text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2 flex-shrink-0 mb-4">
+                        <ListMusic size={24} className="text-amber-500" /> Queue
                     </h3>
                     <DragDropProvider onDragEnd={(event) => {
                             moveInQueue(event);
                         }}>
-                        <ul className="list-vinyl overflow-x-auto pr-2 py-4 -my-4 flex-1">
+                        <ul className="list-vinyl overflow-x-auto pr-2 pb-4 pt-2 -my-2 flex-1 scrollbar-thin scrollbar-thumb-stone-300 dark:scrollbar-thumb-stone-700">
                             {queue.length === 0 ? (
-                                <li className="text-center text-gray-400 py-8">No vinyls in queue</li>
+                                <li className="text-center text-stone-500 dark:text-stone-400 py-10 w-full font-medium">Your queue is empty</li>
                             ) : (
                                 queue.map((id, index) => (
                                 <Sortable
@@ -335,56 +338,64 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
             </div>
 
             {/* Right Panel - Library & Controls */}
-            <div className="w-full lg:w-1/2 lg:h-screen lg:overflow-y-auto p-4 lg:p-8 flex flex-col gap-8">
-                {/* Library Section with Create Button */}
-                <div className="rounded-2xl shadow-md bg-white p-6 flex flex-col min-h-0 flex-1">
-                    <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2 flex-shrink-0">
-                        Vinyl Library
+            <div className="w-full lg:w-1/2 lg:h-screen lg:overflow-y-auto p-4 lg:p-8 flex flex-col gap-8 z-10">
+                <div className="rounded-3xl shadow-xl bg-white/60 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800/50 backdrop-blur-md p-6 flex flex-col min-h-0 flex-1">
+                    <h3 className="text-xl font-bold text-stone-900 dark:text-white mb-6 flex items-center gap-2 flex-shrink-0">
+                        <Library size={24} className="text-orange-500" /> Vinyl Library
                     </h3>
                     
                     {Object.values(vinyls).length === 0 ? (
                         <div className="flex-1 flex flex-col items-center justify-center gap-4">
-                            <div className="text-center">
-                                <p className="text-gray-600 text-sm mb-4">Create a new vinyl record</p>
+                            <div className="text-center p-8 rounded-2xl bg-white/40 dark:bg-stone-800/40 border border-dashed border-stone-300 dark:border-stone-700 w-full">
+                                <Music size={40} className="mx-auto text-stone-400 dark:text-stone-500 mb-3" />
+                                <p className="text-stone-600 dark:text-stone-400 font-medium">Your library is empty</p>
+                                <p className="text-stone-500 dark:text-stone-500 text-sm mt-1">Create your first vinyl record to get started</p>
                             </div>
                         </div>
                     ) : (
-                        <ul className="space-y-2 overflow-y-auto flex-1 mb-4">
+                        <ul className="space-y-3 overflow-y-auto flex-1 mb-6 scrollbar-thin scrollbar-thumb-stone-300 dark:scrollbar-thumb-stone-700 pr-2">
                             {Object.values(vinyls).map((vinyl, index) => (
                                 <li 
                                     key={vinyl.id} 
-                                    className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg hover:shadow-md cursor-pointer transition-all duration-200 border border-blue-100 hover:border-blue-300" 
+                                    className="p-4 bg-white/80 dark:bg-stone-800/80 rounded-2xl hover:shadow-lg cursor-pointer transition-all duration-300 border border-stone-200 dark:border-stone-700/50 hover:border-amber-400 dark:hover:border-amber-500 flex justify-between items-center group backdrop-blur-sm" 
                                     onClick={() => addToQueue(vinyl.id)}
                                 >
-                                    <p className="text-gray-900 font-semibold text-sm">{vinyl.name}</p>
-                                    <p className="text-gray-500 text-xs mt-1">{vinyl.numberOfTracks} tracks</p>
+                                    <div>
+                                        <p className="text-stone-900 dark:text-white font-bold text-base group-hover:text-amber-600 dark:group-hover:text-amber-400 transition-colors">{vinyl.name}</p>
+                                        <p className="text-stone-500 dark:text-stone-400 text-sm mt-1">{vinyl.numberOfTracks} track{vinyl.numberOfTracks !== 1 ? 's' : ''}</p>
+                                    </div>
+                                    <div className="w-10 h-10 rounded-full bg-amber-50 dark:bg-amber-500/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Plus size={20} className="text-amber-600 dark:text-amber-400" />
+                                    </div>
                                 </li>
                             ))}
                         </ul>
                     )}
                     
                     <button 
-                        className="w-full bg-gradient-to-r bg-gray-600 text-white font-semibold py-3 px-4 rounded-lg hover:shadow-lg hover:bg-gray-700 transition-all duration-200 flex-shrink-0"
+                        className="w-full flex items-center justify-center gap-2 bg-stone-900 dark:bg-white text-white dark:text-black font-semibold py-4 px-6 rounded-2xl hover:scale-[1.02] active:scale-[0.98] transition-all shadow-xl dark:shadow-[0_0_30px_rgba(255,255,255,0.1)] flex-shrink-0"
                         onClick={() => setActiveSection('upload')}
                     >
-                        + Create Vinyl
+                        <Plus size={20} /> Create Vinyl
                     </button>
                 </div>
             </div>
 
             {/* Upload Modal */}
             {activeSection === 'upload' && (
-                <div className="fixed inset-0 bg-white bg-opacity-40 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-2xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl overflow-y-auto">
+                <div className="fixed inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+                    <div className="bg-stone-50 dark:bg-stone-900 rounded-3xl w-full max-w-md max-h-[90vh] flex flex-col shadow-2xl border border-stone-200 dark:border-stone-800 overflow-hidden transform transition-all scale-100 animate-in zoom-in-95 duration-200">
                         {/* Modal Header */}
-                        <div className="sticky top-0 bg-gradient-to-r to-black-500 from-gray-900 px-6 py-6 flex items-center justify-between rounded-t-2xl flex-shrink-0">
-                            <h2 className="text-xl font-family-mono font-semibold text-white">Create Vinyl</h2>
+                        <div className="sticky top-0 bg-white/80 dark:bg-stone-900/80 backdrop-blur-md px-6 py-5 flex items-center justify-between border-b border-stone-200 dark:border-stone-800 flex-shrink-0 z-10">
+                            <h2 className="text-xl font-bold text-stone-900 dark:text-white flex items-center gap-2">
+                                <Plus size={20} className="text-amber-500" /> Create Vinyl
+                            </h2>
                             <button 
                                 onClick={() => setActiveSection('home')}
-                                className="text-white text-2xl hover:opacity-80 transition flex-shrink-0 ml-4"
+                                className="p-2 text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-white hover:bg-stone-100 dark:hover:bg-stone-800 rounded-full transition-colors flex-shrink-0"
                                 aria-label="Close"
                             >
-                                ✕
+                                <X size={20} />
                             </button>
                         </div>
 
@@ -397,20 +408,20 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                                 }}
                             >
                                 {/* Vinyl Name Input */}
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Vinyl Name</label>
+                                <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Vinyl Name</label>
                                 <input
                                     type="text"
-                                    className="w-full border-2 border-gray-200 rounded-lg p-3 mb-6 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
+                                    className="w-full bg-white dark:bg-stone-950 border-2 border-stone-200 dark:border-stone-800 rounded-xl p-4 mb-6 focus:outline-none focus:border-amber-500 dark:focus:border-amber-500 transition-colors text-stone-900 dark:text-white shadow-sm"
                                     placeholder="Add a name for your vinyl"
                                     value={vinylName}
                                     onChange={(e) => setVinylName(e.target.value)}
                                 />
 
                                 {/* Tracks List */}
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">Tracks ({fileOrder.length})</label>
-                                <ul className="space-y-2 mb-6 border-2 border-gray-200 rounded-lg p-3 max-h-48 overflow-y-auto">
+                                <label className="block text-sm font-bold text-stone-700 dark:text-stone-300 mb-2">Tracks ({fileOrder.length})</label>
+                                <ul className="space-y-2 mb-6 border-2 border-stone-200 dark:border-stone-800 rounded-xl p-3 max-h-60 overflow-y-auto bg-white/50 dark:bg-stone-950/50">
                                     {fileOrder.length === 0 ? (
-                                        <li className="text-center text-gray-400 py-4">No tracks added yet</li>
+                                        <li className="text-center text-stone-500 dark:text-stone-400 py-8 font-medium">No tracks added yet</li>
                                     ) : (
                                         fileOrder.map((id, index) => (
                                             <Sortable
@@ -435,23 +446,23 @@ export function PlayView({ initialData, isLoggedIn }: { initialData: any, isLogg
                                     style={{ display: "none" }}
                                 />
                                 <button
-                                    className="w-full to-black-500 from-gray-900 bg-gradient-to-r hover:bg-green-300 text-white font-semibold py-3 px-4 rounded-lg mb-4 transition-colors duration-200"
+                                    className="w-full flex items-center justify-center gap-2 border-2 border-dashed border-stone-300 dark:border-stone-700 hover:border-amber-500 dark:hover:border-amber-500 hover:bg-amber-50 dark:hover:bg-amber-500/10 text-stone-700 dark:text-stone-300 hover:text-amber-600 dark:hover:text-amber-400 font-bold py-4 px-4 rounded-xl mb-6 transition-all duration-200"
                                     onClick={(e) => (e.currentTarget.previousElementSibling as HTMLInputElement)?.click()}
                                 >
-                                    + Add Audio File
+                                    <Plus size={20} /> Add Audio File
                                 </button>
                             </DragDropProvider>
 
                             {/* Action Buttons */}
-                            <div className="flex gap-3 pt-4 border-t border-gray-200 flex-shrink-0">
+                            <div className="flex gap-4 pt-4 border-t border-stone-200 dark:border-stone-800 flex-shrink-0 mt-auto">
                                 <button 
-                                    className="flex-1 to-black-500 from-gray-900 bg-gradient-to-r hover:bg-indigo-300 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200" 
+                                    className="flex-1 bg-stone-900 dark:bg-white text-white dark:text-black font-bold py-3.5 px-4 rounded-xl hover:scale-105 active:scale-95 transition-all shadow-md" 
                                     onClick={() => { handleSubmit(); setActiveSection('home'); }}
                                 >
                                     Create
                                 </button>
                                 <button 
-                                    className="flex-1 to-black-500 from-gray-900 bg-gradient-to-r hover:bg-red-300 text-white font-semibold py-3 px-4 rounded-lg transition-colors duration-200"
+                                    className="flex-1 bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-900 dark:text-white font-bold py-3.5 px-4 rounded-xl transition-colors"
                                     onClick={() => setActiveSection('home')}
                                 >
                                     Cancel

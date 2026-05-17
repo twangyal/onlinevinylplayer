@@ -1,24 +1,27 @@
-import { Home, Heart, AudioLines, User, Sliders, Tag, Library, LogOut } from 'lucide-react';
+import { Home, Heart, AudioLines, User, Sliders, Tag, Library, LogOut, LogIn } from 'lucide-react';
 import Link from "next/link";
-
+import { createSupabaseServerClient } from "@/src/db/serverClient";
+import { signOut } from "@/src/app/(app)/logout/actions";
 
 interface SidebarProps {
     activeSection: string;
     onSectionChange: (section: string) => void;
 }
 
-export function Sidebar() {
+export async function Sidebar() {
+    const supabase = await createSupabaseServerClient();
+    const { data: { user } } = await supabase.auth.getUser();
+
     const navItems = [
         { id: '/', icon: Home },
-        { id: '/collection', icon: Library },
         { id: '/play/local', icon: AudioLines },
-        { id: '/profile', icon: User },
+        { id: '/collection', icon: Library },
         { id: '/add-vinyl', icon: Sliders },
-        { id: '/logout', icon: LogOut },
+        { id: '/profile', icon: User },
     ];
 
     return (
-        <aside className="w-20 min-w-20 max-w-20 bg-zinc-200 border-r border-zinc-300 flex flex-col items-center gap-16 pt-16">
+        <aside className="w-20 min-w-20 max-w-20 bg-stone-200 border-r border-stone-300 flex flex-col items-center gap-16 pt-16">
         {navItems.map((item) => (
             <button
             key={item.id}
@@ -28,6 +31,19 @@ export function Sidebar() {
             </Link>
             </button>
         ))}
+        <nav className="cursor-pointer">
+            {user ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <form action={signOut}>
+                <button type="submit"><LogOut className="w-6 h-6 cursor-pointer" /></button>
+                </form>
+            </div>
+            ) : (
+                <Link href="/login">
+                <LogIn className="w-6 h-6" />
+                </Link>
+            )}
+        </nav>
         </aside>
     );
 }
