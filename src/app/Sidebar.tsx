@@ -9,8 +9,9 @@ interface SidebarProps {
 }
 
 export async function Sidebar() {
-    const supabase = await createSupabaseServerClient();
-    const { data: { user } } = await supabase.auth.getUser();
+    const user = process.env.NODE_ENV === 'development'
+        ? null
+        : (await (await createSupabaseServerClient()).auth.getUser()).data.user;
 
     const navItems = [
         { id: '/', icon: Home },

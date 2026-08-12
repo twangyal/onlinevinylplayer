@@ -27,8 +27,11 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  // This will refresh the session if expired, and may set auth cookies on `response`
-  await supabase.auth.getUser()
+  // This will refresh the session if expired, and may set auth cookies on `response`.
+  // Keep local visual development usable when the configured Supabase project is offline.
+  if (process.env.NODE_ENV !== 'development') {
+    await supabase.auth.getUser()
+  }
 
   return response
 }
